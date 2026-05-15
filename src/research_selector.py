@@ -1,5 +1,5 @@
 from typing import Any
-import ast
+import json
 from langchain_core.messages import HumanMessage, SystemMessage
 
 
@@ -15,13 +15,14 @@ Your goal is to select the top 5 most valuable videos for an in-depth research p
 5. **Ignore Junk:** Skip obvious clickbait, unrelated content, or videos that look like advertisements.
 
 ### OUTPUT FORMAT:
-You must output ONLY a valid JSON list of strings containing the 'videoid' of the 5 selected videos.
-Example: ["id1", "id2", "id3", "id4", "id5"]
+You must output ONLY a valid JSON list of objects.
+Each object must contain "videoid" and "title" for the 5 selected videos.
+Example: [{"videoid": "id1", "title": "Title 1"}, {"videoid": "id2", "title": "Title 2"}]
 Do not include any conversational text or explanations.
 """
 
 
-def select_top_video_ids(model: Any, query: str, videos: list[dict[str, Any]]) -> list:
+def select_top_video_ids(model: Any, query: str, videos: list[dict[str, Any]]) -> list[dict[str, str]]:
     user_prompt = f"""
 Research Query: "{query}"
 
@@ -37,5 +38,5 @@ Please select the 5 most suitable videos for summarizing and synthesizing into a
     ]
 
     response = model.invoke(messages)
-    video_ids = ast.literal_eval(response.text)
-    return video_ids
+    selected_videos = json.loads(response.text)
+    return selected_videos

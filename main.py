@@ -1,6 +1,7 @@
 
 from src.env import load_environment, load_youtube_api_key
 from src.research_selector import select_top_video_ids
+from src.transcript_writer import save_transcripts_to_files
 from src.youtube import build_research_results, fetch_video_details, search_videos
 from langchain_google_genai import ChatGoogleGenerativeAI
 
@@ -21,13 +22,15 @@ def main():
     research_results = build_research_results(video_data)
     sorted_by_likes = sorted(research_results, key=lambda item: item["likes"], reverse=True)
     
-    print(sorted_by_likes)
 
     model = ChatGoogleGenerativeAI(model="gemini-3-flash-preview")
-    video_ids = select_top_video_ids(model=model, query=query, videos=sorted_by_likes)
-    print(video_ids)
-
+    selected_videos = select_top_video_ids(model=model, query=query, videos=sorted_by_likes)
+    print(selected_videos)
+    save_transcripts_to_files(selected_videos)
     
+    
+
+    print("success")
     
     
     
