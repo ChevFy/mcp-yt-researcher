@@ -4,13 +4,29 @@ from src.research_selector import select_top_video_ids
 from src.transcript_writer import save_transcripts_to_files
 from src.youtube import build_research_results, fetch_video_details, search_videos
 from langchain_google_genai import ChatGoogleGenerativeAI
+from fastmcp import FastMCP
+import shutil
+import os
+
+mcp = FastMCP()
 
 
+@mcp.tool("generate_transcripts", description="Fetch transcripts for selected videos and save files to tmp. Returns list of file paths.")
+def main(q : str):
+    """Orchestrate YouTube search, selection and transcript export.
 
-def main():
+    Args:
+        q (str): Search query string used to find relevant YouTube videos
+            (e.g., "how to learn fast"). This parameter is passed to the
+            YouTube search helper and drives which videos are fetched.
+
+    Returns:
+        dict: On success returns `{"status": "ok", "files": [...]}`.
+            On partial success returns `{"status": "partial", "files": [...], "errors": [...]}`.
+    """
     load_environment()
     yt_key = load_youtube_api_key()
-    query = "how to learn fast"
+    query = q
 
     search_results = search_videos(
         api_key=yt_key,
@@ -26,16 +42,25 @@ def main():
     model = ChatGoogleGenerativeAI(model="gemini-3-flash-preview")
     selected_videos = select_top_video_ids(model=model, query=query, videos=sorted_by_likes)
     print(selected_videos)
-    save_transcripts_to_files(selected_videos)
-    
-    
+    file_paths  = save_transcripts_to_files(selected_videos)
 
-    print("success")
-    
-    
-    
+    return {"files": file_paths}
+
+
+
+@mcp.tool("cleanup_tmp", description="Remove the tmp directory and all its contents. Safe to call repeatedly.")
+def remove_tmp():
+    """Remove the `tmp` directory created by the toolset.
+    Returns a dict describing outcome.
+    """
+    try:
+        if os.path.exists("tmp"):
+            shutil.rmtree("tmp")
+            return {"deleted": True}
+        return {"deleted": False, "reason": "not found"}
+    except Exception as e:
+        return {"deleted": False, "reason": str(e)}
 
     
-
 if __name__ == "__main__":
-    main()
+    mcp.run()
