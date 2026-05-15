@@ -48,9 +48,10 @@ def build_research_results(video_data: dict[str, Any]) -> list[dict[str, Any]]:
             {
                 "videoid": item["id"],
                 "title": item["snippet"]["title"],
-                "views": views, 
+                "views": views,
+                "description": item["snippet"].get("description", ""),
                 "likes": likes,
-                "ratio" : round(ratio ,2),
+                "ratio": round(ratio, 2),
                 "url": f"https://www.youtube.com/watch?v={item['id']}",
             }
         )
