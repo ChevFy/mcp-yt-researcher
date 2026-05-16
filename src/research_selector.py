@@ -38,5 +38,8 @@ Please select the 5 most suitable videos for summarizing and synthesizing into a
     ]
 
     response = model.invoke(messages)
-    selected_videos = json.loads(response.text)
+    content = response.content
+    if isinstance(content, list):
+        content = "".join(c["text"] if isinstance(c, dict) else c for c in content)
+    selected_videos = json.loads(content)
     return selected_videos

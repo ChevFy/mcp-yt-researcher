@@ -39,10 +39,9 @@ def main(q : str):
     sorted_by_likes = sorted(research_results, key=lambda item: item["likes"], reverse=True)
     
 
-    model = ChatGoogleGenerativeAI(model="gemini-3-flash-preview")
+    model = ChatGoogleGenerativeAI(model="gemini-3.1-flash-lite")
     selected_videos = select_top_video_ids(model=model, query=query, videos=sorted_by_likes)
-    print(selected_videos)
-    file_paths  = save_transcripts_to_files(selected_videos)
+    file_paths = save_transcripts_to_files(selected_videos)
 
     return {"files": file_paths}
 
@@ -63,4 +62,4 @@ def remove_tmp():
 
     
 if __name__ == "__main__":
-    main("how to learn fast 2026")
+    mcp.run()
