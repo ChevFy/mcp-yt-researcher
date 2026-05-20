@@ -62,4 +62,4 @@ def remove_tmp():
 
     
 if __name__ == "__main__":
-    main("how to learn fast 2026")
+    mcp.run()
